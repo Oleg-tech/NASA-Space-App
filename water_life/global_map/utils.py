@@ -1,3 +1,6 @@
+from .models import Animal
+
+
 state_codes = {
     'Alabama': 'AL',
     'Alaska': 'AK',
@@ -57,3 +60,25 @@ state_codes = {
     'Wisconsin': 'WI',
     'Wyoming': 'WY'
 }
+
+
+def get_all_unique_group_names():
+    """Returns a list of all unique group names."""
+
+    group_names = set()
+    for animal in Animal.objects.all():
+        group_name = animal.group_name
+        group_names.add(group_name)
+
+    return list(group_names)
+
+
+def get_danger_level():
+    """Returns a list of all unique zones of risk."""
+
+    statuses = set()
+    for animal in Animal.objects.all():
+        status = animal.status
+        statuses.add(status)
+
+    return list(statuses)

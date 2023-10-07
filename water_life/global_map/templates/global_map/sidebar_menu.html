@@ -16,16 +16,21 @@
 </style>
 
 <div class="sidebar" style="margin-top: 30px;">
-    Магазини
+    Group name
+    {% for group in groups %}
+        <div>
+            <input class="filter-checkbox" data-filter="group_name" id="{{group}}" value="{{group}}" type="checkbox">
+            <label for="{{group}}"><b>{{group}}</b></label>
+        </div>
+    {% endfor %}
     <hr>
-    Категорії
-<!--    {% for key, value in categories.items %}-->
-<!--        <div>-->
-<!--            <input class="filter-checkbox" data-filter="categories" id="{{key}}" value="{{key}}" type="checkbox">-->
-<!--            <label for="{{key}}"><b>{{value}}</b></label>-->
-<!--        </div>-->
-<!--    {% endfor %}-->
-    <hr>
-    Країни
 
+    Status
+    {% for level in danger_level %}
+        <div>
+            <input class="filter-checkbox" data-filter="danger_level" id="{{level}}" value="{{level}}" type="checkbox">
+            <label for="{{level}}"><b>{{level}}</b></label>
+        </div>
+    {% endfor %}
+    <hr>
 </div>

@@ -15,7 +15,7 @@
             {% include 'global_map/sidebar_menu.html' %}
         </div>
 
-        <div class="product" id="filterProducts">
+        <div class="product" id="filterAnimals">
             <p class="ajaxLoader">Loading...</p>
             {% for animal in animals %}
                 <div class="dives" align="center">
@@ -36,4 +36,165 @@
                 <div></div>
             {% endfor %}
         </div>
+    </div>
+
+    <div class="load" align="center" style="margin-bottom: 200px; padding-top: 20px;">
+        <button class="loadMore" style="border-radius: 10px; background-color: #F1982E; border-width: 0px;" data-limit="30" data-total="{{total_data}}">Show more</button>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function(){
+            var _filterObj = {};
+            var _shopObj = {};
+
+            function Check() {
+                $(".shop_present").each(function(index, ele){
+                    var _shopVal=$(this).val();
+                    var _shopKey=$(this).data('filter');
+                });
+
+                $(".filter-checkbox").each(function(index, ele){
+                    var _filterVal=$(this).val();
+                    var _filterKey=$(this).data('filter');
+                    _filterObj[_filterKey]=Array.from(document.querySelectorAll('input[data-filter='+_filterKey+']:checked')).map(function(el){
+                        return el.value;
+                    });
+                });
+            }
+            $(".loadMore").on("click", function(){
+                var _currentProducts = $(".dives").length;
+                var _limit = $(this).attr('data-limit');
+                var _total = $(this).attr('data-total');
+                Check();
+
+                $.ajax({
+                    url:'/load-more-data',
+                    data:{
+                        limit: _limit,
+                        offset: _currentProducts,
+                        group_name: _filterObj['group_name'],
+                        cats: _filterObj['categories'],
+                    },
+                    dataType:'json',
+                    beforeSend:function(){
+                        $(".loadMore").attr('disabled', true);
+                    },
+                    success:function(res){
+                        $('#filterAnimals').append(res.animals);
+<!--                        $(".loadMore").attr('disabled', false);-->
+
+<!--                        if(res.limiter == false) {-->
+<!--                            $(".loadMore").remove();-->
+<!--                        };-->
+
+<!--                        var _totalProducts = $(".dives").length;-->
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function(){
+            $(".ajaxLoader").hide();
+
+            $(".filter-checkbox").on("click", function(){
+                var _filterObj = {};
+
+               _filterObj['ordering'] = $(".orderButton").val();
+                _filterObj['csrfmiddlewaretoken']=$('input[name=csrfmiddlewaretoken]').val();
+                var _shopObj = {};
+                $(".shop_present").each(function(index, ele){
+                    var _shopVal=$(this).val();
+                    var _shopKey=$(this).data('filter');
+                });
+
+                $(".filter-checkbox").each(function(index, ele){
+                    var _filterVal=$(this).val();
+                    var _filterKey=$(this).data('filter');
+                    _filterObj[_filterKey]=Array.from(document.querySelectorAll('input[data-filter='+_filterKey+']:checked')).map(function(el){
+                        return el.value;
+                    });
+                });
+
+                $.ajax({
+                    url:'/filter-data',
+                    data:_filterObj,
+                    dataType:'json',
+                    beforeSend:function(){
+                        $(".ajaxLoader").show();
+                    },
+                    success:function(res){
+                        $("#filterAnimals").html(res.animals);
+
+                        $(".ajaxLoader").hide();
+                        $("#amount").html(res.amount);
+
+                        if(res.limiter == false) {
+                            $(".loadMore").remove();
+                        };
+
+                        if(res.limiter == true && $(".loadMore").html() == null) {
+                            $(".load").html(res.button);
+                        };
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $('.load').on('click', 'button', function(){
+            var _filterObj = {};
+            var _shopObj = {};
+
+            function Check() {
+                $(".shop_present").each(function(index, ele){
+                    var _shopVal=$(this).val();
+                    var _shopKey=$(this).data('filter');
+                });
+
+                $(".filter-checkbox").each(function(index, ele){
+                    var _filterVal=$(this).val();
+                    var _filterKey=$(this).data('filter');
+                    _filterObj[_filterKey]=Array.from(document.querySelectorAll('input[data-filter='+_filterKey+']:checked')).map(function(el){
+                        return el.value;
+                    });
+                });
+            }
+
+            $(".loadMore").on("click", function(){
+                var _currentProducts = $(".dives").length;
+                var _limit = $(this).attr('data-limit');
+                var _total = $(this).attr('data-total');
+                Check();
+
+                $.ajax({
+                    url:'/load-more-data',
+                    data:{
+                        limit: _limit,
+                        offset: _currentProducts,
+                        shops: _filterObj['shops'],
+                        cats: _filterObj['categories'],
+                    },
+                    dataType:'json',
+                    beforeSend:function(){
+                        $(".loadMore").attr('disabled', true);
+                    },
+                    success:function(res){
+                        $$('#filterAnimals').append(res.animals);
+                        $(".loadMore").attr('disabled', false);
+
+                        if(res.limiter == false) {
+                            $(".loadMore").remove();
+                        };
+
+                        var _totalProducts = $(".dives").length;
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}
