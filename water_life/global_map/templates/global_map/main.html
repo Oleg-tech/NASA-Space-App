@@ -1,1 +1,39 @@
-Hello world
+{% extends 'global_map/base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div class="cont">
+        <div>
+            {% if amount == 0 %}
+                This region doesn't contain any animal
+            {% endif %}
+        </div>
+
+        <!--Connect sidebar-->
+        <div>
+            {% include 'global_map/sidebar_menu.html' %}
+        </div>
+
+        <div class="product" id="filterProducts">
+            <p class="ajaxLoader">Loading...</p>
+            {% for animal in animals %}
+                <div class="dives" align="center">
+                    <div class="picture" style="z-index: 100;">
+                        <img class='container_img' style="height: 150px; width: 150px;" src="{{ animal.picture }}">
+                    </div>
+
+                    <div class="info">
+                        <div class="title">
+                            {{ animal.animal_name }}
+                        </div>
+                        {{ animal.animal_latin_name }}
+                        {{ animal.region_name }}
+                        {{ animal.status }}
+                        {{ animal.state_name }}
+                    </div>
+                </div>
+                <div></div>
+            {% endfor %}
+        </div>
+{% endblock %}
