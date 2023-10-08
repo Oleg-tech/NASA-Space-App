@@ -42,7 +42,6 @@ def fill_database(request):
 def filter_data(request):
     state = request.GET.get('state')
     if state:
-        print(state)
         filtered_animals = Animal.objects.all().filter(state_name=state)
     else:
         filtered_classes = request.GET.getlist('group_name[]')
@@ -60,13 +59,13 @@ def filter_data(request):
         'animals': filtered_animals,
         'lent': len(filtered_animals),
         'csrf_token': (request.GET.get('csrfmiddlewaretoken')),
-        'limiter': limiter
+        'limiter': limiter,
     })
 
     return JsonResponse({
         'animals': filtered_part,
         'amount': len(filtered_animals),
-        'limiter': limiter,
+        'limiter': limiter
     })
 
 

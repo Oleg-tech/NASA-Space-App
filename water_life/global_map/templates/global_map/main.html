@@ -31,7 +31,6 @@
                         <b>Status: </b> {{ animal.status }}<br>
                         <b>State: </b> {{ animal.state_name }}<br>
                     </div>
-
                 </div>
                 <div></div>
             {% endfor %}
@@ -124,6 +123,8 @@
                     },
                     success:function(res){
                         $("#filterAnimals").html(res.animals);
+                        $(".current_state").html(res.current_state);
+                        console.log(res.current_state);
 
                         $(".ajaxLoader").hide();
                         $("#amount").html(res.amount);
@@ -142,38 +143,37 @@
     </script>
 
     <script>
-function getAnimalCountByState() {
-    return new Promise(function(resolve, reject) {
-        $.ajax({
-            url: '/get-number-of-animals-by-state',
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                listOfAnimalsByState = data;
-                resolve(data);
+        function getAnimalCountByState() {
+            return new Promise(function(resolve, reject) {
+                $.ajax({
+                    url: '/get-number-of-animals-by-state',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        $(".current_state").html(data.current_state);
+                        listOfAnimalsByState = data;
+                        resolve(data);
 
-                for (const coordinate of coordinatesList) {
-                    let numberOfAnimals; // Оголосіть змінну на рівні функції
+                        for (const coordinate of coordinatesList) {
+                            let numberOfAnimals;
 
-                    if (data && data.hasOwnProperty(coordinate.state)) {
-                        numberOfAnimals = data[coordinate.state];
-                        console.log(numberOfAnimals);
-                    } else {
-                        numberOfAnimals = 0;
+                            if (data && data.hasOwnProperty(coordinate.state)) {
+                                numberOfAnimals = data[coordinate.state];
+                            } else {
+                                numberOfAnimals = 0;
+                            }
+
+                            drawCircle(coordinate.x, coordinate.y, coordinate.state, numberOfAnimals);
+                        }
+                    },
+                    error: function(error) {
+                        reject(error);
                     }
+                });
+            });
+        }
 
-                    drawCircle(coordinate.x, coordinate.y, coordinate.state, numberOfAnimals);
-                }
-            },
-            error: function(error) {
-                reject(error);
-            }
-        });
-    });
-}
-
-getAnimalCountByState();
-
+        getAnimalCountByState();
     </script>
 
     <script>
