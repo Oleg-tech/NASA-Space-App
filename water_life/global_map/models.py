@@ -8,4 +8,4 @@ class Animal(models.Model):
     region_name = models.CharField(max_length=100, verbose_name="Region name")
     status = models.CharField(max_length=100, verbose_name="Status")
     state_name = models.CharField(max_length=100, verbose_name="State name")
-    # picture = ...
+    picture = models.CharField(max_length=200, default=None, verbose_name="Link to image")

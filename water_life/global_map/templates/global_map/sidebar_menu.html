@@ -2,35 +2,35 @@
     .sidebar {
         position: fixed;
         overflow-y: scroll;
-        top: 60px;
+        top: 0px;
         left: 0px;
-        height: 83%;
+        height: 100%;
         width: 250px;
         background-color: white;
-        z-index:1;
-    }
-
-    .change_letter::first-letter {
-        initial-letter: 1;
+        z-index: 5;
     }
 </style>
 
-<div class="sidebar" style="margin-top: 30px;">
-    Group name
-    {% for group in groups %}
-        <div>
-            <input class="filter-checkbox" data-filter="group_name" id="{{group}}" value="{{group}}" type="checkbox">
-            <label for="{{group}}"><b>{{group}}</b></label>
-        </div>
-    {% endfor %}
-    <hr>
+<div class="sidebar">
+    <b>Group name</b>
+    <div style="margin-top: 10px; margin-left: 10px;">
+        {% for group in groups %}
+            <div>
+                <input class="filter-checkbox" data-filter="group_name" id="{{group}}" value="{{group}}" type="checkbox">
+                <label for="{{group}}"><b>{{group}}</b></label>
+            </div>
+        {% endfor %}
+    </div>
+    <hr><br>
 
-    Status
-    {% for level in danger_level %}
-        <div>
-            <input class="filter-checkbox" data-filter="danger_level" id="{{level}}" value="{{level}}" type="checkbox">
-            <label for="{{level}}"><b>{{level}}</b></label>
-        </div>
-    {% endfor %}
+    <b>Status</b>
+    <div style="margin-top: 10px; margin-left: 10px;">
+        {% for level in danger_level %}
+            <div>
+                <input class="filter-checkbox" data-filter="danger_level" id="{{level}}" value="{{level}}" type="checkbox">
+                <label for="{{level}}"><b>{{level}}</b></label>
+            </div>
+        {% endfor %}
+    </div>
     <hr>
 </div>

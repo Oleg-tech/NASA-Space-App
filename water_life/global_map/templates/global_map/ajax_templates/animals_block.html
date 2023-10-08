@@ -1,17 +1,14 @@
 {% for animal in animals %}
     <div class="dives" align="center">
         <div class="picture" style="z-index: 100;">
-            <img class='container_img' style="height: 150px; width: 150px;" src="{{ animal.picture }}">
+            <img class='container_img' src="{{ animal.picture }}">
         </div>
 
         <div class="info">
-            <div class="title">
-                {{ animal.animal_name }}
-            </div>
-            {{ animal.animal_latin_name }}
-            {{ animal.region_name }}
-            {{ animal.status }}
-            {{ animal.state_name }}
+            <b>Common Name: </b> {{ animal.animal_name }}
+            <b>Scientific Name: </b> {{ animal.animal_latin_name }}
+            <b>Status: </b> {{ animal.status }}
+            <b>State: </b> {{ animal.state_name }}
         </div>
     </div>
     <div></div>

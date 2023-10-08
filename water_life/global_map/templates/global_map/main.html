@@ -15,31 +15,27 @@
             {% include 'global_map/sidebar_menu.html' %}
         </div>
 
+        <canvas id="canvas" width="1400" height="1400"></canvas>
+
         <div class="product" id="filterAnimals">
             <p class="ajaxLoader">Loading...</p>
             {% for animal in animals %}
                 <div class="dives" align="center">
                     <div class="picture" style="z-index: 100;">
-                        <img class='container_img' style="height: 150px; width: 150px;" src="{{ animal.picture }}">
+                        <img class='container_img' src="{{ animal.picture }}">
                     </div>
 
                     <div class="info">
-                        <div class="title">
-                            {{ animal.animal_name }}
-                        </div>
-                        {{ animal.animal_latin_name }}
-                        {{ animal.region_name }}
-                        {{ animal.status }}
-                        {{ animal.state_name }}
+                        <b>Common Name: </b> {{ animal.animal_name }}<br>
+                        <b>Scientific Name: </b> {{ animal.animal_latin_name }}<br>
+                        <b>Status: </b> {{ animal.status }}<br>
+                        <b>State: </b> {{ animal.state_name }}<br>
                     </div>
+
                 </div>
                 <div></div>
             {% endfor %}
         </div>
-    </div>
-
-    <div class="load" align="center" style="margin-bottom: 200px; padding-top: 20px;">
-        <button class="loadMore" style="border-radius: 10px; background-color: #F1982E; border-width: 0px;" data-limit="30" data-total="{{total_data}}">Show more</button>
     </div>
 {% endblock %}
 
@@ -83,13 +79,13 @@
                     },
                     success:function(res){
                         $('#filterAnimals').append(res.animals);
-<!--                        $(".loadMore").attr('disabled', false);-->
+                        $(".loadMore").attr('disabled', false);
 
-<!--                        if(res.limiter == false) {-->
-<!--                            $(".loadMore").remove();-->
-<!--                        };-->
+                        if(res.limiter == false) {
+                            $(".loadMore").remove();
+                        };
 
-<!--                        var _totalProducts = $(".dives").length;-->
+                        var _totalProducts = $(".dives").length;
                     }
                 });
             });
@@ -103,8 +99,8 @@
             $(".filter-checkbox").on("click", function(){
                 var _filterObj = {};
 
-               _filterObj['ordering'] = $(".orderButton").val();
-                _filterObj['csrfmiddlewaretoken']=$('input[name=csrfmiddlewaretoken]').val();
+                _filterObj['ordering'] = $(".orderButton").val();
+                _filterObj['csrfmiddlewaretoken'] = $('input[name=csrfmiddlewaretoken]').val();
                 var _shopObj = {};
                 $(".shop_present").each(function(index, ele){
                     var _shopVal=$(this).val();
@@ -146,55 +142,154 @@
     </script>
 
     <script>
-        $('.load').on('click', 'button', function(){
-            var _filterObj = {};
-            var _shopObj = {};
+function getAnimalCountByState() {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: '/get-number-of-animals-by-state',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                listOfAnimalsByState = data;
+                resolve(data);
 
-            function Check() {
-                $(".shop_present").each(function(index, ele){
-                    var _shopVal=$(this).val();
-                    var _shopKey=$(this).data('filter');
-                });
+                for (const coordinate of coordinatesList) {
+                    let numberOfAnimals; // Оголосіть змінну на рівні функції
 
-                $(".filter-checkbox").each(function(index, ele){
-                    var _filterVal=$(this).val();
-                    var _filterKey=$(this).data('filter');
-                    _filterObj[_filterKey]=Array.from(document.querySelectorAll('input[data-filter='+_filterKey+']:checked')).map(function(el){
-                        return el.value;
-                    });
-                });
+                    if (data && data.hasOwnProperty(coordinate.state)) {
+                        numberOfAnimals = data[coordinate.state];
+                        console.log(numberOfAnimals);
+                    } else {
+                        numberOfAnimals = 0;
+                    }
+
+                    drawCircle(coordinate.x, coordinate.y, coordinate.state, numberOfAnimals);
+                }
+            },
+            error: function(error) {
+                reject(error);
+            }
+        });
+    });
+}
+
+getAnimalCountByState();
+
+    </script>
+
+    <script>
+        function displayCoordinates(event) {
+            const x = event.clientX;
+            const y = event.clientY;
+            console.log(x, y);
+        }
+
+        document.addEventListener('click', displayCoordinates);
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            function drawCircle(x, y, state, numberOfAnimals) {
+                ctx.beginPath();
+                if (numberOfAnimals === 0) {
+                    ctx.arc(x, y, 10, 0, 2 * Math.PI);
+                    ctx.fillStyle = 'gray';
+                } else if (numberOfAnimals >= 1 && numberOfAnimals <= 5) {
+                    ctx.arc(x, y, 15, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#00FF00';
+                } else if (numberOfAnimals > 5 && numberOfAnimals <= 10) {
+                    ctx.arc(x, y, 20, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#FFB533';
+                } else {
+                   ctx.arc(x, y, 25, 0, 2 * Math.PI);
+                   ctx.fillStyle = 'red';
+                }
+
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
+
+                ctx.fill();
+                ctx.stroke();
+                ctx.closePath();
+
+                ctx.fillStyle = 'black';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(numberOfAnimals.toString(), x, y);
             }
 
-            $(".loadMore").on("click", function(){
-                var _currentProducts = $(".dives").length;
-                var _limit = $(this).attr('data-limit');
-                var _total = $(this).attr('data-total');
-                Check();
+        const coordinatesList = [
+            { x: 395, y: 154, state: "Oregon" },
+            { x: 340, y: 331, state: "California" },
+            { x: 445, y: 299, state: "Nevada" },
+            { x: 516, y: 168, state: "Idaho" },
+            { x: 428, y: 53, state: "Washington" },
+            { x: 644, y: 121, state: "Montana" },
+            { x: 1310, y: 290, state: "Pennsylvania" },
+            { x: 660, y: 240, state: "Wyoming" },
+            { x: 555, y: 336, state: "Utah" },
+            { x: 526, y: 479, state: "Arizona" },
+            { x: 687, y: 358, state: "Colorado" },
+            { x: 816, y: 131, state: "North Dakota" },
+            { x: 815, y: 212, state: "South Dakota" },
+            { x: 824, y: 302, state: "Nebraska" },
+            { x: 659, y: 488, state: "New Mexico" },
+            { x: 844, y: 391, state: "Kansas" },
+            { x: 964, y: 294, state: "Iowa" },
+            { x: 1028, y: 220, state: "Wisconsin" },
+            { x: 982, y: 398, state: "Missouri" },
+            { x: 1148, y: 242, state: "Michigan" },
+            { x: 837, y: 598, state: "Texas" },
+            { x: 991, y: 498, state: "Arkansas" },
+            { x: 1054, y: 343, state: "Illinois" },
+            { x: 987, y: 599, state: "Louisiana" },
+            { x: 1056, y: 557, state: "Mississippi" },
+            { x: 875, y: 481, state: "Oklahoma" },
+            { x: 1124, y: 545, state: "Alabama" },
+            { x: 1120, y: 465, state: "Tennessee" },
+            { x: 1149, y: 415, state: "Kentucky" },
+            { x: 1125, y: 344, state: "Indiana" },
+            { x: 1202, y: 327, state: "Ohio" },
+            { x: 1248, y: 371, state: "West Virginia" },
+            { x: 1212, y: 552, state: "Georgia" },
+            { x: 1271, y: 510, state: "South Carolina" },
+            { x: 1302, y: 451, state: "North Carolina" },
+            { x: 1294, y: 396, state: "Virginia" },
+            { x: 1340, y: 222, state: "New York" },
+            { x: 499, y: 651, state: "Alaska" },
+            { x: 1260, y: 671, state: "Florida" },
+            { x: 940, y: 178, state: "Minnesota" },
+        ];
 
-                $.ajax({
-                    url:'/load-more-data',
-                    data:{
-                        limit: _limit,
-                        offset: _currentProducts,
-                        shops: _filterObj['shops'],
-                        cats: _filterObj['categories'],
-                    },
-                    dataType:'json',
-                    beforeSend:function(){
-                        $(".loadMore").attr('disabled', true);
-                    },
-                    success:function(res){
-                        $$('#filterAnimals').append(res.animals);
-                        $(".loadMore").attr('disabled', false);
+        canvas.addEventListener('click', function(event) {
+            const x = event.clientX - canvas.getBoundingClientRect().left;
+            const y = event.clientY - canvas.getBoundingClientRect().top;
 
-                        if(res.limiter == false) {
-                            $(".loadMore").remove();
-                        };
+            // Check if user clicked on the circle
+            for (const coordinate of coordinatesList) {
+                const distance = Math.sqrt((x - coordinate.x) ** 2 + (y - coordinate.y) ** 2);
 
-                        var _totalProducts = $(".dives").length;
-                    }
-                });
-            });
+                if (distance <= 20) {
+                    fetch('/filter-data?state=' + coordinate.state, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        $("#filterAnimals").html(data.animals);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                    break;
+                }
+            }
+        });
+
+        canvas.addEventListener('click', function(event) {
+            const x = event.clientX - canvas.getBoundingClientRect().left;
+            const y = event.clientY - canvas.getBoundingClientRect().top;
         });
     </script>
 {% endblock %}
